@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown, DropdownButton } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -11,8 +12,21 @@ const Auth = () => {
   const [userName, setUserName] = useState("")
   const [password, setPassword] = useState("")
   const [email, setEmail] = useState("")
+  const [errorMessage, setErrorMessage] =useState("")
+  const [message, setMessage] =useState("")
 
+  const navigate = useNavigate;
 
+  const redirectURL=()=>{
+    navigate("/");
+  }
+
+  useEffect(()=>{
+    if(localStorage.getItem("token")){
+      redirectURL();
+      }
+
+  },[]);
  
   const updateSignupData=(e)=>{
     const id = e.target.id;
@@ -32,6 +46,8 @@ const Auth = () => {
       setEmail(e.target.value)
       console.log(email)
     }
+    setErrorMessage("");
+    setMessage("");
   }
 
   const clearState=()=>{
@@ -40,6 +56,8 @@ const Auth = () => {
     setPassword("");
     setUserName("");
     setUserType("CUSTOMER")
+    setMessage("");
+    setErrorMessage("");
   }
 
   const handleSelect=(e)=>{
@@ -51,14 +69,57 @@ const Auth = () => {
     setShowSignup(!showSignup);
   }
 
+  const dataValidation =(data) =>{
+    if (data.userId.length<5 || data.userId.length<10){
+      setErrorMessage("User id should be 5 to 10 characters long")
+      return false;
+    }
+    if (data.userId.includes(' ')){
+      setErrorMessage("User id should not content spaces")
+      return false;
+    }
+    if (data.password.length<6 || data.password.length<10){
+      setErrorMessage("Password should be 6 to 10 characters long")
+      return false;
+    }
+    if (data.password.includes(' ')){
+      setErrorMessage("Password should not content spaces")
+      return false;
+    }
+    if (data.name){
+      if (data.name.length<5 || data.name.length<10){
+        setErrorMessage("User name should be 5 to 10 characters long")
+        return false;
+      }
+      if (data.name.includes(' ')){
+        setErrorMessage("User name should not content spaces")
+        return false;
+      }
+    }
+    return true;
+  }
+
   const signupFn=(e)=>{
     e.preventDefault();
-    console.log("Signup button clicked")
+    const data = {
+      name : userName,
+      userId,
+      password,
+      email,
+      userType
+    }
   }
 
   const loginFn=(e)=>{
     e.preventDefault();
-    console.log("Login button clicked")
+    const data = {
+      userId,
+      password
+    }
+    if(!dataValidation(data)){
+      return;
+    }
+    // call api
   }
 
   return (
@@ -152,6 +213,8 @@ const Auth = () => {
           </div>
           <div className="text-center" onClick={toggleSignup}>{(showSignup)? "Already have an acount? Login" : "Do't have accoun? Signup"}
           </div>
+          <div className="auth-error-msg text-sucess text-center">{message}</div>
+          <div className="auth-error-msg text-danger text-center">{errorMessage}</div>
         </form>
       </div>
     </div>
