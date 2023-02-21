@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import {signIn} from '../../api/auth'
 
 
 
 
 const Auth = () => {
-  const [showSignup, setShowSignup] = useState(true);
+  const [showSignup, setShowSignup] = useState(false);
   const [userType, setUserType] = useState("CUSTOMER")
   const [userId, setUserId] = useState("")
   const [userName, setUserName] = useState("")
@@ -32,19 +33,19 @@ const Auth = () => {
     const id = e.target.id;
     if(id==="userName"){
       setUserName(e.target.value)
-      console.log(userName)
+      // console.log(userName)
     }
     if(id==="userId"){
       setUserId(e.target.value)
-      console.log(userId)
+      // console.log(userId)
     }
     if(id==="password"){
       setPassword(e.target.value)
-      console.log(password)
+      // console.log(password)
     }
     if(id==="email"){
       setEmail(e.target.value)
-      console.log(email)
+      // console.log(email)
     }
     setErrorMessage("");
     setMessage("");
@@ -70,7 +71,7 @@ const Auth = () => {
   }
 
   const dataValidation =(data) =>{
-    if (data.userId.length<5 || data.userId.length<10){
+    if (data.userId.length<5 || data.userId.length>10){
       setErrorMessage("User id should be 5 to 10 characters long")
       return false;
     }
@@ -78,7 +79,7 @@ const Auth = () => {
       setErrorMessage("User id should not content spaces")
       return false;
     }
-    if (data.password.length<6 || data.password.length<10){
+    if (data.password.length<6 || data.password.length>10){
       setErrorMessage("Password should be 6 to 10 characters long")
       return false;
     }
@@ -87,7 +88,7 @@ const Auth = () => {
       return false;
     }
     if (data.name){
-      if (data.name.length<5 || data.name.length<10){
+      if (data.name.length<5 || data.name.length>10){
         setErrorMessage("User name should be 5 to 10 characters long")
         return false;
       }
@@ -108,18 +109,25 @@ const Auth = () => {
       email,
       userType
     }
+    if(!dataValidation(data)){
+      return;
+    }
+    
   }
 
-  const loginFn=(e)=>{
+  const loginFn= async (e)=>{
     e.preventDefault();
     const data = {
       userId,
       password
-    }
+    };
     if(!dataValidation(data)){
       return;
-    }
-    // call api
+    };
+    const result = await signIn(data);
+    // prient error Message 
+    setErrorMessage(result.data.message)
+
   }
 
   return (
